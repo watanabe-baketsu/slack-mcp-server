@@ -3,27 +3,27 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { TransportManager } from './transport.js';
 
 /**
- * Expressルートを設定する関数
+ * Function to set up Express routes
  */
 export function setupRoutes(
   app: express.Application,
   transportManager: TransportManager
 ): void {
-  // POSTリクエスト（クライアントからサーバーへの通信）のハンドラー
+  // POST request handler (client to server communication)
   app.post('/mcp', async (req, res) => {
-    // 既存のセッションIDの確認
+    // Check for existing session ID
     const sessionId = req.headers['mcp-session-id'] as string | undefined;
 
     if (sessionId && transportManager.getTransport(sessionId)) {
-      // 既存のトランスポートを再利用
+      // Reuse existing transport
       const transport = transportManager.getTransport(sessionId)!;
       await transport.handleRequest(req, res, req.body);
     } else if (!sessionId && isInitializeRequest(req.body)) {
-      // 新しい初期化リクエスト
+      // New initialization request
       const transport = await transportManager.createTransport();
       await transport.handleRequest(req, res, req.body);
     } else {
-      // 無効なリクエスト
+      // Invalid request
       res.status(400).json({
         jsonrpc: '2.0',
         error: {
@@ -35,7 +35,7 @@ export function setupRoutes(
     }
   });
 
-  // GET/DELETEリクエスト用の共通ハンドラー
+  // Common handler for GET/DELETE requests
   const handleSessionRequest = async (
     req: express.Request,
     res: express.Response
@@ -50,9 +50,9 @@ export function setupRoutes(
     await transport.handleRequest(req, res);
   };
 
-  // GETリクエスト（SSEを通じたサーバーからクライアントへの通知）のハンドラー
+  // GET request handler (server to client notification via SSE)
   app.get('/mcp', handleSessionRequest);
 
-  // DELETEリクエスト（セッション終了）のハンドラー
+  // DELETE request handler (session termination)
   app.delete('/mcp', handleSessionRequest);
 }

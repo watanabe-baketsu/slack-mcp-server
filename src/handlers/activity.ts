@@ -5,7 +5,7 @@ import {
 } from '../schemas.js';
 
 /**
- * 現在の日時からN日前の日時をタイムスタンプ（秒）で取得する
+ * Get timestamp (in seconds) for a date N days ago from current date
  */
 function getTimestampNDaysAgo(days: number): number {
   const now = new Date();
@@ -14,7 +14,7 @@ function getTimestampNDaysAgo(days: number): number {
 }
 
 /**
- * メッセージにリアクションの合計数を計算
+ * Calculate total number of reactions on a message
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function countReactions(message: Record<string, any>): number {
@@ -28,43 +28,43 @@ function countReactions(message: Record<string, any>): number {
 }
 
 /**
- * メッセージにメンションが含まれているかチェック
+ * Check if a message contains mentions
  */
 function hasMention(message: string): boolean {
-  // メンションパターン: <@USERID>
+  // Mention pattern: <@USERID>
   return /<@[A-Z0-9]+>/i.test(message);
 }
 
 /**
- * ユーザーが参加しているチャンネルの最近のアクティビティを取得するハンドラー
+ * Handler for retrieving recent activity in channels the user is participating in
  */
 export async function getUserChannelActivityHandler(args: unknown) {
   const parsedArgs = GetUserChannelActivityRequestSchema.parse(args);
 
-  // 設定パラメータ
+  // Configuration parameters
   const days = parsedArgs.days || 1;
   const maxChannels = parsedArgs.max_channels || 5;
   const maxMessagesPerChannel = parsedArgs.max_messages_per_channel || 10;
   const includePrivate = parsedArgs.include_private !== false;
 
-  // タイムスタンプ（秒）
+  // Timestamp (seconds)
   const oldest = getTimestampNDaysAgo(days);
 
-  // ユーザーが参加しているチャンネル一覧を取得
+  // Get list of channels user is participating in
   const channelsResponse = await userClient.users.conversations({
     types: includePrivate ? 'public_channel,private_channel' : 'public_channel',
     exclude_archived: true,
-    limit: 200, // 最大数を取得
+    limit: 200, // Get maximum number
   });
 
   if (!channelsResponse.ok) {
     throw new Error(`Failed to get user channels: ${channelsResponse.error}`);
   }
 
-  // チャンネル一覧
+  // Channel list
   const channels = channelsResponse.channels || [];
 
-  // チャネル情報とメッセージを集める
+  // Collect channel information and messages
   const channelSummaries: Array<{
     channel_id: string;
     channel_name: string;
@@ -79,17 +79,17 @@ export async function getUserChannelActivityHandler(args: unknown) {
     }>;
   }> = [];
 
-  // 最大maxChannelsまでのチャンネルを処理
+  // Process up to maxChannels channels
   const channelsToProcess = channels.slice(0, maxChannels);
 
   for (const channel of channelsToProcess) {
     try {
-      // チャンネルIDがない場合はスキップ
+      // Skip if channel ID is missing
       if (!channel.id || !channel.name) {
         continue;
       }
 
-      // チャンネル履歴を取得
+      // Get channel history
       const historyResponse = await userClient.conversations.history({
         channel: channel.id,
         limit: maxMessagesPerChannel,
@@ -105,12 +105,12 @@ export async function getUserChannelActivityHandler(args: unknown) {
 
       const messages = historyResponse.messages || [];
 
-      // メッセージがない場合はスキップ
+      // Skip if no messages
       if (messages.length === 0) {
         continue;
       }
 
-      // メッセージを加工
+      // Process messages
       const processedMessages = messages.map((msg) => ({
         text: msg.text || '',
         user: msg.user,
@@ -118,10 +118,10 @@ export async function getUserChannelActivityHandler(args: unknown) {
         reply_count: msg.reply_count || 0,
         reaction_count: countReactions(msg),
         has_mention: hasMention(msg.text || ''),
-        permalink: '', // 後で取得
+        permalink: '', // To be retrieved later
       }));
 
-      // パーマリンクを取得（APIレート制限を避けるため重要なメッセージだけにする）
+      // Get permalinks (only for important messages to avoid API rate limits)
       for (let i = 0; i < Math.min(3, processedMessages.length); i++) {
         try {
           const permalinkResponse = await userClient.chat.getPermalink({
@@ -137,7 +137,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
         }
       }
 
-      // 重要度でソート（リアクション数 + 返信数）
+      // Sort by importance (reactions + replies)
       processedMessages.sort((a, b) => {
         const timeNow = Math.floor(Date.now() / 1000);
         const msgTimeA = parseInt(a.ts.split('.')[0]);
@@ -160,7 +160,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
         return importanceB - importanceA;
       });
 
-      // チャンネルサマリーを追加
+      // Add channel summary
       channelSummaries.push({
         channel_id: channel.id,
         channel_name: channel.name,
@@ -171,16 +171,16 @@ export async function getUserChannelActivityHandler(args: unknown) {
     }
   }
 
-  // 今日の日付をフォーマット
+  // Format today's date
   const today = new Date();
   const formattedDate = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
 
-  // アクティビティがあるチャンネルのみをフィルタ
+  // Filter channels with activity
   const filteredSummaries = channelSummaries.filter(
     (summary) => summary.messages.length > 0
   );
 
-  // 重要度でソート（メッセージの合計重要度）
+  // Sort by importance (total message importance)
   filteredSummaries.sort((a, b) => {
     const importanceA =
       a.messages.reduce(
@@ -211,7 +211,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
     return importanceB - importanceA;
   });
 
-  // レスポンスを作成
+  // Create response
   const response = {
     ok: true,
     date: formattedDate,
@@ -220,7 +220,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
 
   const parsedResponse = GetUserChannelActivityResponseSchema.parse(response);
 
-  // 結果を日本語でフォーマット
+  // Format results in Japanese
   const formattedSummary = formatActivitySummary(parsedResponse);
 
   return {
@@ -229,7 +229,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
 }
 
 /**
- * アクティビティサマリーを日本語でフォーマット
+ * Format activity summary in Japanese
  */
 function formatActivitySummary(response: {
   date: string;
@@ -250,49 +250,43 @@ function formatActivitySummary(response: {
     return `${date}の顕著なアクティビティはありませんでした。`;
   }
 
-  let summary = `# ${date} のSlackアクティビティまとめ\n\n`;
+  let summary = `# ${date} のアクティビティサマリー\n\n`;
 
-  // チャンネルごとのサマリー
-  channels_summary.forEach((channel) => {
+  // Channel summaries
+  for (const channel of channels_summary) {
     summary += `## #${channel.channel_name}\n\n`;
 
-    if (channel.messages.length === 0) {
-      summary += '顕著なアクティビティはありませんでした。\n\n';
-      return;
-    }
+    // Display messages
+    if (channel.messages.length > 0) {
+      // Show details for first 3 messages only
+      for (let i = 0; i < Math.min(3, channel.messages.length); i++) {
+        const msg = channel.messages[i];
+        summary += `- ${msg.text}\n`;
 
-    // メッセージを表示
-    channel.messages.forEach((msg, index) => {
-      // 最初の3つのメッセージだけ詳細表示
-      if (index < 3) {
-        summary += `- ${msg.text}`;
-
-        // リアクションカウントを表示
+        // Show reaction count
         if (msg.reaction_count && msg.reaction_count > 0) {
-          summary += ` (👍 ${msg.reaction_count})`;
+          summary += `  - リアクション: ${msg.reaction_count}件\n`;
         }
 
-        // 返信カウントを表示
+        // Show reply count
         if (msg.reply_count && msg.reply_count > 0) {
-          summary += ` (💬 ${msg.reply_count})`;
+          summary += `  - 返信: ${msg.reply_count}件\n`;
         }
 
-        // パーマリンク
+        // Permalink
         if (msg.permalink) {
-          summary += ` [リンク](${msg.permalink})`;
+          summary += `  - [メッセージを見る](${msg.permalink})\n`;
         }
 
         summary += '\n';
       }
-    });
 
-    // 残りのメッセージ数を表示
-    if (channel.messages.length > 3) {
-      summary += `\nその他 ${channel.messages.length - 3} 件のメッセージがあります。\n`;
+      // Show count of remaining messages
+      if (channel.messages.length > 3) {
+        summary += `...他 ${channel.messages.length - 3} 件のメッセージ\n\n`;
+      }
     }
-
-    summary += '\n';
-  });
+  }
 
   return summary;
 }

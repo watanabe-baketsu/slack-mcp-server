@@ -9,14 +9,14 @@ import {
 } from '../schemas.js';
 
 /**
- * チャンネル一覧を取得するハンドラー
+ * Handler for retrieving channel list
  */
 export async function listChannelsHandler(args: unknown) {
   const parsedArgs = ListChannelsRequestSchema.parse(args);
   const response = await userClient.conversations.list({
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
-    types: 'public_channel,private_channel', // プライベートチャンネルも含める
+    types: 'public_channel,private_channel', // Include private channels
   });
 
   if (!response.ok) {
@@ -30,12 +30,12 @@ export async function listChannelsHandler(args: unknown) {
 }
 
 /**
- * ユーザーが参加しているチャンネル一覧を取得するハンドラー
+ * Handler for retrieving list of channels the user has joined
  */
 export async function getUserChannelsHandler(args: unknown) {
   const parsedArgs = GetUserChannelsRequestSchema.parse(args);
 
-  // userClientを使用してユーザーが参加している全てのチャンネルを取得
+  // Use userClient to get all channels the user has joined
   const response = await userClient.users.conversations({
     types: 'public_channel,private_channel',
     exclude_archived: true,

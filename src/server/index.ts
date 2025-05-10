@@ -6,27 +6,27 @@ import { TransportManager } from './transport.js';
 import { setupRoutes } from './routes.js';
 
 /**
- * HTTPサーバーを起動する関数
+ * Function to start the HTTP server
  */
 export async function startHttpServer(server: Server): Promise<void> {
-  // ExpressアプリケーションとHTTPサーバーのセットアップ
+  // Set up Express application and HTTP server
   const app = express();
   app.use(express.json());
 
-  // トランスポートマネージャーの初期化
+  // Initialize transport manager
   const transportManager = new TransportManager(server);
 
-  // ルートの設定
+  // Set up routes
   setupRoutes(app, transportManager);
 
-  // サーバーを起動
+  // Start server
   app.listen(PORT, () => {
     console.log(`Slack MCP Server running on HTTP at port ${PORT}`);
   });
 }
 
 /**
- * Stdioサーバーを起動する関数
+ * Function to start the Stdio server
  */
 export async function startStdioServer(server: Server): Promise<void> {
   const transport = new StdioServerTransport();
@@ -35,10 +35,10 @@ export async function startStdioServer(server: Server): Promise<void> {
 }
 
 /**
- * 環境設定に応じたサーバーを起動する関数
+ * Function to start server based on environment settings
  */
 export async function startServer(server: Server): Promise<void> {
-  // 環境変数MODE=stdioの場合、stdioモードで起動
+  // When environment variable MODE=stdio, start in stdio mode
   if (MODE === 'stdio') {
     await startStdioServer(server);
   } else {

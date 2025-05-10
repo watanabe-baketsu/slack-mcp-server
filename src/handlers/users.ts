@@ -8,7 +8,7 @@ import {
 } from '../schemas.js';
 
 /**
- * ユーザー一覧を取得するハンドラー
+ * Handler for retrieving user list
  */
 export async function getUsersHandler(args: unknown) {
   const parsedArgs = GetUsersRequestSchema.parse(args);
@@ -28,7 +28,7 @@ export async function getUsersHandler(args: unknown) {
 }
 
 /**
- * ユーザープロファイルを取得するハンドラー
+ * Handler for retrieving user profile
  */
 export async function getUserProfileHandler(args: unknown) {
   const parsedArgs = GetUserProfileRequestSchema.parse(args);
@@ -47,7 +47,7 @@ export async function getUserProfileHandler(args: unknown) {
 }
 
 /**
- * 現在のユーザー情報を取得するハンドラー
+ * Handler for retrieving current user information
  */
 export async function getCurrentUserHandler() {
   const response = await userClient.auth.test();

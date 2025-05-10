@@ -6,13 +6,13 @@ import {
 } from '../schemas.js';
 
 /**
- * チャンネル内のキャンバス一覧を取得するハンドラー
+ * Handler for retrieving canvas list in a channel
  */
 export async function listChannelCanvasesHandler(args: unknown) {
   const parsedArgs = ListChannelCanvasesRequestSchema.parse(args);
 
   try {
-    // 方法1: conversations.canvases.list API（新しいAPI）を試す
+    // Method 1: Try conversations.canvases.list API (new API)
     try {
       console.log(
         `Trying conversations.canvases.list for channel ${parsedArgs.channel_id}`
@@ -42,10 +42,10 @@ export async function listChannelCanvasesHandler(args: unknown) {
       console.warn('Error using conversations.canvases.list:', apiError);
     }
 
-    // 方法2: 通常のfiles.list APIを使用
+    // Method 2: Use regular files.list API
     const filesResponse = await userClient.files.list({
       channel: parsedArgs.channel_id,
-      types: 'all', // すべてのタイプを取得し、後でフィルタリング
+      types: 'all', // Get all types and filter later
       count: parsedArgs.limit || 100,
       page: parsedArgs.cursor ? parseInt(parsedArgs.cursor) : 1,
     });
@@ -61,7 +61,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
       filesResponse.files ? filesResponse.files.length : 0
     );
 
-    // ファイルタイプの一覧を表示（デバッグ用）
+    // Display file type list (for debugging)
     if (filesResponse.files && filesResponse.files.length > 0) {
       console.log(
         'File types:',
@@ -74,7 +74,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
         }))
       );
 
-      // キャンバスのみをフィルタリング（複数の条件を試す）
+      // Filter canvas files only (try multiple conditions)
       const canvasFiles = filesResponse.files.filter((file) => {
         const isCanvas =
           file.filetype === 'canvas' ||
@@ -93,7 +93,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
 
       console.log(`Canvases found after filtering: ${canvasFiles.length}`);
 
-      // フィルター後のファイル一覧を返す
+      // Return filtered file list
       return {
         content: [
           {
@@ -108,7 +108,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
       };
     }
 
-    // 方法3: 直接API呼び出しを試みる
+    // Method 3: Try direct API call
     try {
       console.log(
         `Trying direct API call for files.list in channel ${parsedArgs.channel_id}`
@@ -129,7 +129,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
           `Total files from direct API: ${directResponse.files.length}`
         );
 
-        // ファイル情報のサンプルを表示
+        // Display sample file information
         if (directResponse.files.length > 0) {
           const fileSamples = directResponse.files
             .slice(0, 5)
@@ -180,7 +180,7 @@ export async function listChannelCanvasesHandler(args: unknown) {
 }
 
 /**
- * キャンバスの内容を取得するハンドラー
+ * Handler for retrieving canvas content
  */
 export async function getCanvasContentHandler(args: unknown) {
   const parsedArgs = GetCanvasContentRequestSchema.parse(args);
@@ -188,7 +188,7 @@ export async function getCanvasContentHandler(args: unknown) {
   try {
     console.log(`Getting basic info for canvas ID: ${parsedArgs.canvas_id}`);
 
-    // 特定のキャンバスの基本情報を取得
+    // Get basic information for specific canvas
     const response = await userClient.files.info({
       file: parsedArgs.canvas_id,
     });
@@ -202,7 +202,7 @@ export async function getCanvasContentHandler(args: unknown) {
       throw new Error('Canvas file information not found');
     }
 
-    // 基本情報のみを返す
+    // Return basic information only
     return {
       content: [
         {
@@ -222,7 +222,7 @@ export async function getCanvasContentHandler(args: unknown) {
               size: file.size || 0,
               is_editable: file.editable || false,
               message:
-                '注意: Slack APIの制限により、キャンバスの内容を直接取得することはできません。',
+                'Note: Due to Slack API limitations, canvas content cannot be directly retrieved.',
             },
           }),
         },
@@ -237,19 +237,19 @@ export async function getCanvasContentHandler(args: unknown) {
 }
 
 /**
- * ユーザーのキャンバスを要約するハンドラー
+ * Handler for summarizing user canvases
  */
 export async function summarizeUserCanvasesHandler(args: unknown) {
   const parsedArgs = SummarizeUserCanvasesRequestSchema.parse(args);
 
   try {
-    // 1. ユーザーが参加している全てのチャンネルを取得
+    // 1. Get all channels the user is participating in
     const channelsResponse = await userClient.users.conversations({
       types: parsedArgs.include_private
         ? 'public_channel,private_channel'
         : 'public_channel',
       exclude_archived: true,
-      limit: 200, // 最大数を取得
+      limit: 200, // Get maximum number
     });
 
     if (!channelsResponse.ok) {
@@ -273,13 +273,13 @@ export async function summarizeUserCanvasesHandler(args: unknown) {
 
     const channelSummaries = [];
 
-    // 2. 各チャンネルでキャンバスを取得して情報をまとめる
+    // 2. Get canvas information from each channel and compile information
     for (const channel of channelsResponse.channels) {
       try {
-        // チャンネル内のファイルリストを取得
+        // Get file list in channel
         const filesResponse = await userClient.files.list({
           channel: channel.id,
-          types: 'all', // すべてのタイプを取得
+          types: 'all', // Get all types
           count: parsedArgs.max_canvases_per_channel || 20,
         });
 
@@ -288,10 +288,10 @@ export async function summarizeUserCanvasesHandler(args: unknown) {
           !filesResponse.files ||
           filesResponse.files.length === 0
         ) {
-          continue; // このチャンネルはスキップ
+          continue; // Skip this channel
         }
 
-        // キャンバスのみをフィルタリング
+        // Filter canvas files only
         const canvasFiles = filesResponse.files.filter(
           (file) =>
             file.filetype === 'canvas' ||
@@ -301,10 +301,10 @@ export async function summarizeUserCanvasesHandler(args: unknown) {
         );
 
         if (canvasFiles.length === 0) {
-          continue; // キャンバスがない場合はスキップ
+          continue; // Skip if no canvases
         }
 
-        // キャンバスの基本情報のみを収集（内容取得は行わない）
+        // Collect basic canvas information only (don't retrieve content)
         const canvases = canvasFiles.map((canvas) => ({
           id: canvas.id,
           title: canvas.title || canvas.name || 'Untitled Canvas',
