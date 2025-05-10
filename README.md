@@ -7,14 +7,24 @@ A [MCP(Model Context Protocol)](https://www.anthropic.com/news/model-context-pro
 Available tools:
 
 - `slack_list_channels` - List public channels in the workspace with pagination
+- `slack_get_user_channels` - Get all channels (including private) the user is a member of
 - `slack_post_message` - Post a new message to a Slack channel
 - `slack_reply_to_thread` - Reply to a specific message thread in Slack
 - `slack_add_reaction` - Add a reaction emoji to a message
 - `slack_get_channel_history` - Get recent messages from a channel
 - `slack_get_thread_replies` - Get all replies in a message thread
+- `slack_search_messages` - Search for messages in the workspace
+- `slack_search_mentions` - Search for messages that mention a specific user
 - `slack_get_users` - Retrieve basic profile information of all users in the workspace
 - `slack_get_user_profile` - Get a user's profile information
-- `slack_search_messages` - Search for messages in the workspace
+- `slack_get_current_user` - Get information about the current user associated with the token
+- `slack_list_files_in_channel` - Get list of files in a channel
+- `slack_get_file_info` - Get information about a specific file
+- `slack_summarize_channel_files` - Summarize files from all channels the user is a member of
+- `slack_list_channel_canvases` - Get list of canvases in a channel
+- `slack_get_canvas_content` - Get the content of a specific canvas
+- `slack_summarize_user_canvases` - Summarize user canvases
+- `slack_get_user_channel_activity` - Get user activity in a channel
 
 ## Quick Start
 
@@ -32,12 +42,21 @@ You need to set the following environment variables:
 
 - `SLACK_BOT_TOKEN`: Slack Bot User OAuth Token
 - `SLACK_USER_TOKEN`: Slack User OAuth Token (required for some features like message search)
+- `PORT`: (Optional) Port number to run the server on (default: 3000)
 
 You can also create a `.env` file to set these environment variables:
 
 ```
 SLACK_BOT_TOKEN=xoxb-your-bot-token
 SLACK_USER_TOKEN=xoxp-your-user-token
+PORT=3000
+```
+
+For running examples, use the following environment variables:
+
+```
+EXMAPLES_SLACK_BOT_TOKEN=xoxb-your-bot-token
+EXMAPLES_SLACK_USER_TOKEN=xoxp-your-user-token
 ```
 
 ### Usage
@@ -67,7 +86,8 @@ node node_modules/.bin/slack-mcp-server
     "env": {
       "NPM_CONFIG_//npm.pkg.github.com/:_authToken": "<your-github-pat>",
       "SLACK_BOT_TOKEN": "<your-bot-token>",
-      "SLACK_USER_TOKEN": "<your-user-token>"
+      "SLACK_USER_TOKEN": "<your-user-token>",
+      "PORT": "3000"
     }
   }
 }
@@ -98,6 +118,19 @@ For example, the `slack_list_channels` implementation parses the request with `L
 - `npm run start` - Start the production server
 - `npm run lint` - Run linting checks (ESLint and Prettier)
 - `npm run fix` - Automatically fix linting issues
+- `npm run examples` - Run example scripts
+
+### Docker Deployment
+
+A Dockerfile is provided for containerized deployment:
+
+```bash
+# Build the Docker image
+docker build -t slack-mcp-server .
+
+# Run the container
+docker run -p 3000:3000 -e SLACK_BOT_TOKEN=xoxb-your-bot-token -e SLACK_USER_TOKEN=xoxp-your-user-token slack-mcp-server
+```
 
 ### Contributing
 
