@@ -374,7 +374,7 @@ export const GetUserChannelsResponseSchema = z.object({
     id: z.string(),
     name: z.string(),
     is_private: z.boolean(),
-    is_member: z.boolean(),
+    is_member: z.boolean().optional(),
     num_members: z.number().optional(),
   })),
   response_metadata: z.object({
