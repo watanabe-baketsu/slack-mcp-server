@@ -22,4 +22,4 @@ if (!process.env.SLACK_USER_TOKEN) {
 export const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 export const SLACK_USER_TOKEN = process.env.SLACK_USER_TOKEN;
 export const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-export const MODE = process.env.MODE; 
+export const MODE = process.env.MODE;

@@ -5,4 +5,4 @@ import { SLACK_BOT_TOKEN, SLACK_USER_TOKEN } from './env.js';
 export const slackClient = new WebClient(SLACK_BOT_TOKEN);
 
 // ユーザートークンを使用したクライアント
-export const userClient = new WebClient(SLACK_USER_TOKEN); 
+export const userClient = new WebClient(SLACK_USER_TOKEN);

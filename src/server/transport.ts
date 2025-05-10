@@ -7,7 +7,8 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
  * セッションID毎のトランスポートを管理します
  */
 export class TransportManager {
-  private transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
+  private transports: { [sessionId: string]: StreamableHTTPServerTransport } =
+    {};
   private server: Server;
 
   constructor(server: Server) {
@@ -30,7 +31,7 @@ export class TransportManager {
       onsessioninitialized: (sessionId) => {
         // セッションIDでトランスポートを保存
         this.transports[sessionId] = transport;
-      }
+      },
     });
 
     // 閉じる時のクリーンアップ
@@ -39,10 +40,10 @@ export class TransportManager {
         delete this.transports[transport.sessionId];
       }
     };
-    
+
     // サーバーに接続
     await this.server.connect(transport);
-    
+
     return transport;
   }
 
@@ -54,4 +55,4 @@ export class TransportManager {
       delete this.transports[sessionId];
     }
   }
-} 
+}

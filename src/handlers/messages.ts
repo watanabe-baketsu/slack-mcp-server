@@ -9,7 +9,7 @@ import {
   SearchMentionsRequestSchema,
   ConversationsHistoryResponseSchema,
   ConversationsRepliesResponseSchema,
-  SearchMessagesResponseSchema
+  SearchMessagesResponseSchema,
 } from '../schemas.js';
 
 /**
@@ -21,11 +21,11 @@ export async function postMessageHandler(args: unknown) {
     channel: parsedArgs.channel_id,
     text: parsedArgs.text,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to post message: ${response.error}`);
   }
-  
+
   return {
     content: [{ type: 'text', text: 'Message posted successfully' }],
   };
@@ -41,11 +41,11 @@ export async function replyToThreadHandler(args: unknown) {
     thread_ts: parsedArgs.thread_ts,
     text: parsedArgs.text,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to reply to thread: ${response.error}`);
   }
-  
+
   return {
     content: [{ type: 'text', text: 'Reply sent to thread successfully' }],
   };
@@ -61,11 +61,11 @@ export async function addReactionHandler(args: unknown) {
     timestamp: parsedArgs.timestamp,
     name: parsedArgs.reaction,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to add reaction: ${response.error}`);
   }
-  
+
   return {
     content: [{ type: 'text', text: 'Reaction added successfully' }],
   };
@@ -81,11 +81,11 @@ export async function getChannelHistoryHandler(args: unknown) {
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to get channel history: ${response.error}`);
   }
-  
+
   const parsedResponse = ConversationsHistoryResponseSchema.parse(response);
   return {
     content: [{ type: 'text', text: JSON.stringify(parsedResponse) }],
@@ -103,11 +103,11 @@ export async function getThreadRepliesHandler(args: unknown) {
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to get thread replies: ${response.error}`);
   }
-  
+
   const parsedResponse = ConversationsRepliesResponseSchema.parse(response);
   return {
     content: [{ type: 'text', text: JSON.stringify(parsedResponse) }],
@@ -161,7 +161,7 @@ export async function searchMessagesHandler(args: unknown) {
  */
 export async function searchMentionsHandler(args: unknown) {
   const parsedArgs = SearchMentionsRequestSchema.parse(args);
-  
+
   let query = `@${parsedArgs.user_id}`;
   if (parsedArgs.after) {
     query += ` after:${parsedArgs.after}`;
@@ -185,4 +185,4 @@ export async function searchMentionsHandler(args: unknown) {
   return {
     content: [{ type: 'text', text: JSON.stringify(parsed) }],
   };
-} 
+}

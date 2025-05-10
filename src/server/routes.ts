@@ -5,12 +5,15 @@ import { TransportManager } from './transport.js';
 /**
  * Expressルートを設定する関数
  */
-export function setupRoutes(app: express.Application, transportManager: TransportManager): void {
+export function setupRoutes(
+  app: express.Application,
+  transportManager: TransportManager
+): void {
   // POSTリクエスト（クライアントからサーバーへの通信）のハンドラー
   app.post('/mcp', async (req, res) => {
     // 既存のセッションIDの確認
     const sessionId = req.headers['mcp-session-id'] as string | undefined;
-    
+
     if (sessionId && transportManager.getTransport(sessionId)) {
       // 既存のトランスポートを再利用
       const transport = transportManager.getTransport(sessionId)!;
@@ -33,13 +36,16 @@ export function setupRoutes(app: express.Application, transportManager: Transpor
   });
 
   // GET/DELETEリクエスト用の共通ハンドラー
-  const handleSessionRequest = async (req: express.Request, res: express.Response) => {
+  const handleSessionRequest = async (
+    req: express.Request,
+    res: express.Response
+  ) => {
     const sessionId = req.headers['mcp-session-id'] as string | undefined;
     if (!sessionId || !transportManager.getTransport(sessionId)) {
       res.status(400).send('Invalid or missing session ID');
       return;
     }
-    
+
     const transport = transportManager.getTransport(sessionId)!;
     await transport.handleRequest(req, res);
   };
@@ -49,4 +55,4 @@ export function setupRoutes(app: express.Application, transportManager: Transpor
 
   // DELETEリクエスト（セッション終了）のハンドラー
   app.delete('/mcp', handleSessionRequest);
-} 
+}

@@ -44,4 +44,4 @@ export async function startServer(server: Server): Promise<void> {
   } else {
     await startHttpServer(server);
   }
-} 
+}

@@ -370,16 +370,20 @@ export const GetUserChannelsRequestSchema = z.object({
 
 export const GetUserChannelsResponseSchema = z.object({
   ok: z.boolean(),
-  channels: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    is_private: z.boolean(),
-    is_member: z.boolean().optional(),
-    num_members: z.number().optional(),
-  })),
-  response_metadata: z.object({
-    next_cursor: z.string().optional(),
-  }).optional(),
+  channels: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      is_private: z.boolean(),
+      is_member: z.boolean().optional(),
+      num_members: z.number().optional(),
+    })
+  ),
+  response_metadata: z
+    .object({
+      next_cursor: z.string().optional(),
+    })
+    .optional(),
 });
 
 export const ListFilesInChannelRequestSchema = z.object({
@@ -407,12 +411,14 @@ export const FileInfoSchema = z.object({
 export const ListFilesResponseSchema = z.object({
   ok: z.boolean(),
   files: z.array(FileInfoSchema),
-  paging: z.object({
-    count: z.number(),
-    total: z.number(),
-    page: z.number(),
-    pages: z.number(),
-  }).optional(),
+  paging: z
+    .object({
+      count: z.number(),
+      total: z.number(),
+      page: z.number(),
+      pages: z.number(),
+    })
+    .optional(),
 });
 
 export const GetFileInfoRequestSchema = z.object({
@@ -435,11 +441,13 @@ export const ListChannelCanvasesRequestSchema = z.object({
 export const CanvasBlockSchema = z.object({
   type: z.string(),
   block_id: z.string().optional(),
-  text: z.object({
-    type: z.string(),
-    text: z.string(),
-    verbatim: z.boolean().optional(),
-  }).optional(),
+  text: z
+    .object({
+      type: z.string(),
+      text: z.string(),
+      verbatim: z.boolean().optional(),
+    })
+    .optional(),
   elements: z.array(z.unknown()).optional(),
 });
 
@@ -459,15 +467,17 @@ export const GetCanvasContentRequestSchema = z.object({
 
 export const CanvasResponseSchema = z.object({
   ok: z.boolean(),
-  canvas: z.object({
-    id: z.string(),
-    title: z.string().optional(),
-    blocks: z.array(CanvasBlockSchema).optional(),
-    date_created: z.number().optional(),
-    date_updated: z.number().optional(),
-    channel_id: z.string().optional(),
-    user_id: z.string().optional(),
-  }).optional(),
+  canvas: z
+    .object({
+      id: z.string(),
+      title: z.string().optional(),
+      blocks: z.array(CanvasBlockSchema).optional(),
+      date_created: z.number().optional(),
+      date_updated: z.number().optional(),
+      channel_id: z.string().optional(),
+      user_id: z.string().optional(),
+    })
+    .optional(),
   canvases: z.array(CanvasInfoSchema).optional(),
 });
 
@@ -478,24 +488,42 @@ export const SummarizeUserCanvasesRequestSchema = z.object({
 
 // ユーザーチャンネルアクティビティに関するスキーマ
 export const GetUserChannelActivityRequestSchema = z.object({
-  days: z.number().optional().default(1).describe('取得する日数（デフォルト1日）'),
-  max_channels: z.number().optional().default(5).describe('取得するチャンネルの最大数（デフォルト5）'),
-  max_messages_per_channel: z.number().optional().default(10).describe('チャンネルごとに取得するメッセージの最大数（デフォルト10）'),
-  include_private: z.boolean().optional().default(true).describe('プライベートチャンネルを含めるかどうか（デフォルトtrue）'),
+  days: z
+    .number()
+    .optional()
+    .default(1)
+    .describe('取得する日数（デフォルト1日）'),
+  max_channels: z
+    .number()
+    .optional()
+    .default(5)
+    .describe('取得するチャンネルの最大数（デフォルト5）'),
+  max_messages_per_channel: z
+    .number()
+    .optional()
+    .default(10)
+    .describe('チャンネルごとに取得するメッセージの最大数（デフォルト10）'),
+  include_private: z
+    .boolean()
+    .optional()
+    .default(true)
+    .describe('プライベートチャンネルを含めるかどうか（デフォルトtrue）'),
 });
 
 export const MessageActivitySchema = z.object({
   channel_id: z.string(),
   channel_name: z.string(),
-  messages: z.array(z.object({
-    text: z.string(),
-    user: z.string().optional(),
-    ts: z.string(),
-    reply_count: z.number().optional(),
-    reaction_count: z.number().optional(),
-    has_mention: z.boolean().optional(),
-    permalink: z.string().optional(),
-  })),
+  messages: z.array(
+    z.object({
+      text: z.string(),
+      user: z.string().optional(),
+      ts: z.string(),
+      reply_count: z.number().optional(),
+      reaction_count: z.number().optional(),
+      has_mention: z.boolean().optional(),
+      permalink: z.string().optional(),
+    })
+  ),
 });
 
 export const GetUserChannelActivityResponseSchema = z.object({

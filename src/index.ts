@@ -100,12 +100,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'slack_get_current_user',
-        description: 'Get information about the current user associated with the token',
+        description:
+          'Get information about the current user associated with the token',
         inputSchema: zodToJsonSchema(z.object({})),
       },
       {
         name: 'slack_get_user_channels',
-        description: 'Get all channels (including private) the user is a member of',
+        description:
+          'Get all channels (including private) the user is a member of',
         inputSchema: zodToJsonSchema(GetUserChannelsRequestSchema),
       },
       {
@@ -120,7 +122,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'slack_summarize_channel_files',
-        description: 'Summarize files from all channels the user is a member of',
+        description:
+          'Summarize files from all channels the user is a member of',
         inputSchema: zodToJsonSchema(SummarizeChannelFilesRequestSchema),
       },
       {
@@ -135,12 +138,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'slack_summarize_user_canvases',
-        description: 'Summarize canvases from all channels the user is a member of',
+        description:
+          'Summarize canvases from all channels the user is a member of',
         inputSchema: zodToJsonSchema(SummarizeUserCanvasesRequestSchema),
       },
       {
         name: 'slack_get_user_channel_activity',
-        description: '参加しているチャンネルの最近のアクティビティや顕著な動きをまとめる',
+        description:
+          '参加しているチャンネルの最近のアクティビティや顕著な動きをまとめる',
         inputSchema: zodToJsonSchema(GetUserChannelActivityRequestSchema),
       },
     ],
@@ -153,14 +158,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (!request.params) {
       throw new Error('Params are required');
     }
-    
+
     const toolName = request.params.name;
     const handler = handlers[toolName];
-    
+
     if (!handler) {
       throw new Error(`Unknown tool: ${toolName}`);
     }
-    
+
     // 対応するハンドラーを呼び出す
     return await handler(request.params.arguments);
   } catch (error) {

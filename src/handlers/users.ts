@@ -4,7 +4,7 @@ import {
   GetUserProfileRequestSchema,
   GetUsersResponseSchema,
   GetUserProfileResponseSchema,
-  GetCurrentUserResponseSchema
+  GetCurrentUserResponseSchema,
 } from '../schemas.js';
 
 /**
@@ -16,11 +16,11 @@ export async function getUsersHandler(args: unknown) {
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to get users: ${response.error}`);
   }
-  
+
   const parsed = GetUsersResponseSchema.parse(response);
   return {
     content: [{ type: 'text', text: JSON.stringify(parsed) }],
@@ -35,11 +35,11 @@ export async function getUserProfileHandler(args: unknown) {
   const response = await slackClient.users.profile.get({
     user: parsedArgs.user_id,
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to get user profile: ${response.error}`);
   }
-  
+
   const parsed = GetUserProfileResponseSchema.parse(response);
   return {
     content: [{ type: 'text', text: JSON.stringify(parsed) }],
@@ -51,13 +51,13 @@ export async function getUserProfileHandler(args: unknown) {
  */
 export async function getCurrentUserHandler() {
   const response = await userClient.auth.test();
-  
+
   if (!response.ok) {
     throw new Error(`Failed to get current user: ${response.error}`);
   }
-  
+
   const parsed = GetCurrentUserResponseSchema.parse(response);
   return {
     content: [{ type: 'text', text: JSON.stringify(parsed) }],
   };
-} 
+}
