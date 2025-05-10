@@ -280,6 +280,26 @@ export const SearchMessagesRequestSchema = z.object({
     .describe('Page number of results (max 100)'),
 });
 
+export const SearchMentionsRequestSchema = z.object({
+  user_id: z.string().describe('メンションを検索するユーザーのID'),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .default(20)
+    .describe('取得するメッセージの最大数（デフォルト20）'),
+  after: z
+    .string()
+    .optional()
+    .describe('この日時以降のメンションを検索（YYYY-MM-DD形式）'),
+  before: z
+    .string()
+    .optional()
+    .describe('この日時以前のメンションを検索（YYYY-MM-DD形式）'),
+});
+
 const SearchPaginationSchema = z.object({
   first: z.number().optional(),
   last: z.number().optional(),
@@ -332,4 +352,126 @@ export const SearchMessagesResponseSchema = BaseResponseSchema.extend({
       pagination: SearchPaginationSchema.optional(),
     })
     .optional(),
+});
+
+export const GetCurrentUserResponseSchema = BaseResponseSchema.extend({
+  user_id: z.string().optional(),
+  user: z.string().optional(),
+  team_id: z.string().optional(),
+  team: z.string().optional(),
+  url: z.string().optional(),
+});
+
+// キャンバス関連のスキーマをファイル関連のスキーマに変更
+export const GetUserChannelsRequestSchema = z.object({
+  limit: z.number().optional().default(100),
+  cursor: z.string().optional(),
+});
+
+export const GetUserChannelsResponseSchema = z.object({
+  ok: z.boolean(),
+  channels: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    is_private: z.boolean(),
+    is_member: z.boolean(),
+    num_members: z.number().optional(),
+  })),
+  response_metadata: z.object({
+    next_cursor: z.string().optional(),
+  }).optional(),
+});
+
+export const ListFilesInChannelRequestSchema = z.object({
+  channel_id: z.string(),
+  limit: z.number().optional().default(10),
+  cursor: z.string().optional(),
+  types: z.string().optional(),
+});
+
+export const FileInfoSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  title: z.string().optional(),
+  mimetype: z.string().optional(),
+  filetype: z.string().optional(),
+  size: z.number().optional(),
+  url_private: z.string().optional(),
+  preview: z.string().optional(),
+  created: z.number().optional(),
+  timestamp: z.number().optional(),
+  user: z.string().optional(),
+  editable: z.boolean().optional(),
+});
+
+export const ListFilesResponseSchema = z.object({
+  ok: z.boolean(),
+  files: z.array(FileInfoSchema),
+  paging: z.object({
+    count: z.number(),
+    total: z.number(),
+    page: z.number(),
+    pages: z.number(),
+  }).optional(),
+});
+
+export const GetFileInfoRequestSchema = z.object({
+  file_id: z.string(),
+});
+
+export const SummarizeChannelFilesRequestSchema = z.object({
+  max_files_per_channel: z.number().optional().default(5),
+  include_private: z.boolean().optional().default(true),
+  file_types: z.string().optional().default(''),
+});
+
+// Canvasに関するスキーマ
+export const ListChannelCanvasesRequestSchema = z.object({
+  channel_id: z.string(),
+  limit: z.number().optional().default(10),
+  cursor: z.string().optional(),
+});
+
+export const CanvasBlockSchema = z.object({
+  type: z.string(),
+  block_id: z.string().optional(),
+  text: z.object({
+    type: z.string(),
+    text: z.string(),
+    verbatim: z.boolean().optional(),
+  }).optional(),
+  elements: z.array(z.unknown()).optional(),
+});
+
+export const CanvasInfoSchema = z.object({
+  id: z.string(),
+  title: z.string().optional(),
+  date_created: z.number().optional(),
+  date_updated: z.number().optional(),
+  date_deleted: z.number().optional(),
+  channel_id: z.string().optional(),
+  user_id: z.string().optional(),
+});
+
+export const GetCanvasContentRequestSchema = z.object({
+  canvas_id: z.string(),
+});
+
+export const CanvasResponseSchema = z.object({
+  ok: z.boolean(),
+  canvas: z.object({
+    id: z.string(),
+    title: z.string().optional(),
+    blocks: z.array(CanvasBlockSchema).optional(),
+    date_created: z.number().optional(),
+    date_updated: z.number().optional(),
+    channel_id: z.string().optional(),
+    user_id: z.string().optional(),
+  }).optional(),
+  canvases: z.array(CanvasInfoSchema).optional(),
+});
+
+export const SummarizeUserCanvasesRequestSchema = z.object({
+  max_canvases_per_channel: z.number().optional().default(5),
+  include_private: z.boolean().optional().default(true),
 });
