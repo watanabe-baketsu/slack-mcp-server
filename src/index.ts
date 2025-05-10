@@ -5,10 +5,10 @@ import {
   CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { WebClient } from '@slack/web-api';
-import dotenv from 'dotenv';
+import { z } from 'zod';
+import { handlers } from './handlers/index.js';
+import { startServer } from './server/index.js';
 import {
   ListChannelsRequestSchema,
   PostMessageRequestSchema,
@@ -18,34 +18,19 @@ import {
   GetThreadRepliesRequestSchema,
   GetUsersRequestSchema,
   GetUserProfileRequestSchema,
-  ListChannelsResponseSchema,
-  GetUsersResponseSchema,
-  GetUserProfileResponseSchema,
   SearchMessagesRequestSchema,
-  SearchMessagesResponseSchema,
-  ConversationsHistoryResponseSchema,
-  ConversationsRepliesResponseSchema,
+  SearchMentionsRequestSchema,
+  GetUserChannelsRequestSchema,
+  ListFilesInChannelRequestSchema,
+  GetFileInfoRequestSchema,
+  SummarizeChannelFilesRequestSchema,
+  ListChannelCanvasesRequestSchema,
+  GetCanvasContentRequestSchema,
+  SummarizeUserCanvasesRequestSchema,
+  GetUserChannelActivityRequestSchema,
 } from './schemas.js';
 
-dotenv.config();
-
-if (!process.env.SLACK_BOT_TOKEN) {
-  console.error(
-    'SLACK_BOT_TOKEN is not set. Please set it in your environment or .env file.'
-  );
-  process.exit(1);
-}
-
-if (!process.env.SLACK_USER_TOKEN) {
-  console.error(
-    'SLACK_USER_TOKEN is not set. Please set it in your environment or .env file.'
-  );
-  process.exit(1);
-}
-
-const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN);
-const userClient = new WebClient(process.env.SLACK_USER_TOKEN);
-
+// Create MCP server
 const server = new Server(
   {
     name: 'slack-mcp-server',
@@ -58,6 +43,7 @@ const server = new Server(
   }
 );
 
+// Handler for returning available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
@@ -107,193 +93,81 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         description: 'Search for messages in the workspace',
         inputSchema: zodToJsonSchema(SearchMessagesRequestSchema),
       },
+      {
+        name: 'slack_search_mentions',
+        description: 'Search for messages that mention a specific user',
+        inputSchema: zodToJsonSchema(SearchMentionsRequestSchema),
+      },
+      {
+        name: 'slack_get_current_user',
+        description:
+          'Get information about the current user associated with the token',
+        inputSchema: zodToJsonSchema(z.object({})),
+      },
+      {
+        name: 'slack_get_user_channels',
+        description:
+          'Get all channels (including private) the user is a member of',
+        inputSchema: zodToJsonSchema(GetUserChannelsRequestSchema),
+      },
+      {
+        name: 'slack_list_files_in_channel',
+        description: 'Get list of files in a channel',
+        inputSchema: zodToJsonSchema(ListFilesInChannelRequestSchema),
+      },
+      {
+        name: 'slack_get_file_info',
+        description: 'Get information about a specific file',
+        inputSchema: zodToJsonSchema(GetFileInfoRequestSchema),
+      },
+      {
+        name: 'slack_summarize_channel_files',
+        description:
+          'Summarize files from all channels the user is a member of',
+        inputSchema: zodToJsonSchema(SummarizeChannelFilesRequestSchema),
+      },
+      {
+        name: 'slack_list_channel_canvases',
+        description: 'Get list of canvases in a channel',
+        inputSchema: zodToJsonSchema(ListChannelCanvasesRequestSchema),
+      },
+      {
+        name: 'slack_get_canvas_content',
+        description: 'Get the content of a specific canvas',
+        inputSchema: zodToJsonSchema(GetCanvasContentRequestSchema),
+      },
+      {
+        name: 'slack_summarize_user_canvases',
+        description:
+          'Summarize canvases from all channels the user is a member of',
+        inputSchema: zodToJsonSchema(SummarizeUserCanvasesRequestSchema),
+      },
+      {
+        name: 'slack_get_user_channel_activity',
+        description:
+          '参加しているチャンネルの最近のアクティビティや顕著な動きをまとめる',
+        inputSchema: zodToJsonSchema(GetUserChannelActivityRequestSchema),
+      },
     ],
   };
 });
 
+// Handler for calling tools
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     if (!request.params) {
       throw new Error('Params are required');
     }
-    switch (request.params.name) {
-      case 'slack_list_channels': {
-        const args = ListChannelsRequestSchema.parse(request.params.arguments);
-        const response = await slackClient.conversations.list({
-          limit: args.limit,
-          cursor: args.cursor,
-          types: 'public_channel', // Only public channels
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to list channels: ${response.error}`);
-        }
-        const parsed = ListChannelsResponseSchema.parse(response);
 
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsed) }],
-        };
-      }
+    const toolName = request.params.name;
+    const handler = handlers[toolName];
 
-      case 'slack_post_message': {
-        const args = PostMessageRequestSchema.parse(request.params.arguments);
-        const response = await slackClient.chat.postMessage({
-          channel: args.channel_id,
-          text: args.text,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to post message: ${response.error}`);
-        }
-        return {
-          content: [{ type: 'text', text: 'Message posted successfully' }],
-        };
-      }
-
-      case 'slack_reply_to_thread': {
-        const args = ReplyToThreadRequestSchema.parse(request.params.arguments);
-        const response = await slackClient.chat.postMessage({
-          channel: args.channel_id,
-          thread_ts: args.thread_ts,
-          text: args.text,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to reply to thread: ${response.error}`);
-        }
-        return {
-          content: [
-            { type: 'text', text: 'Reply sent to thread successfully' },
-          ],
-        };
-      }
-      case 'slack_add_reaction': {
-        const args = AddReactionRequestSchema.parse(request.params.arguments);
-        const response = await slackClient.reactions.add({
-          channel: args.channel_id,
-          timestamp: args.timestamp,
-          name: args.reaction,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to add reaction: ${response.error}`);
-        }
-        return {
-          content: [{ type: 'text', text: 'Reaction added successfully' }],
-        };
-      }
-
-      case 'slack_get_channel_history': {
-        const args = GetChannelHistoryRequestSchema.parse(
-          request.params.arguments
-        );
-        const response = await slackClient.conversations.history({
-          channel: args.channel_id,
-          limit: args.limit,
-          cursor: args.cursor,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to get channel history: ${response.error}`);
-        }
-        const parsedResponse =
-          ConversationsHistoryResponseSchema.parse(response);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsedResponse) }],
-        };
-      }
-
-      case 'slack_get_thread_replies': {
-        const args = GetThreadRepliesRequestSchema.parse(
-          request.params.arguments
-        );
-        const response = await slackClient.conversations.replies({
-          channel: args.channel_id,
-          ts: args.thread_ts,
-          limit: args.limit,
-          cursor: args.cursor,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to get thread replies: ${response.error}`);
-        }
-        const parsedResponse =
-          ConversationsRepliesResponseSchema.parse(response);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsedResponse) }],
-        };
-      }
-
-      case 'slack_get_users': {
-        const args = GetUsersRequestSchema.parse(request.params.arguments);
-        const response = await slackClient.users.list({
-          limit: args.limit,
-          cursor: args.cursor,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to get users: ${response.error}`);
-        }
-        const parsed = GetUsersResponseSchema.parse(response);
-
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsed) }],
-        };
-      }
-
-      case 'slack_get_user_profile': {
-        const args = GetUserProfileRequestSchema.parse(
-          request.params.arguments
-        );
-        const response = await slackClient.users.profile.get({
-          user: args.user_id,
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to get user profile: ${response.error}`);
-        }
-        const parsed = GetUserProfileResponseSchema.parse(response);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsed) }],
-        };
-      }
-
-      case 'slack_search_messages': {
-        const parsedParams = SearchMessagesRequestSchema.parse(
-          request.params.arguments
-        );
-
-        let query = parsedParams.query;
-        if (parsedParams.in_channel) {
-          query += ` in:${parsedParams.in_channel}`;
-        }
-        if (parsedParams.in_group) {
-          query += ` in:${parsedParams.in_group}`;
-        }
-        if (parsedParams.in_dm) {
-          query += ` in:<@${parsedParams.in_dm}>`;
-        }
-        if (parsedParams.from_user) {
-          query += ` from:<@${parsedParams.from_user}>`;
-        }
-        if (parsedParams.from_bot) {
-          query += ` from:${parsedParams.from_bot}`;
-        }
-
-        const response = await userClient.search.messages({
-          query: query,
-          highlight: parsedParams.highlight,
-          sort: parsedParams.sort,
-          sort_dir: parsedParams.sort_dir,
-          count: parsedParams.count,
-          page: parsedParams.page,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to search messages: ${response.error}`);
-        }
-
-        const parsed = SearchMessagesResponseSchema.parse(response);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(parsed) }],
-        };
-      }
-
-      default:
-        throw new Error(`Unknown tool: ${request.params.name}`);
+    if (!handler) {
+      throw new Error(`Unknown tool: ${toolName}`);
     }
+
+    // Call the corresponding handler
+    return await handler(request.params.arguments);
   } catch (error) {
     console.error('Error handling request:', error);
     const errorMessage =
@@ -302,13 +176,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-async function runServer() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error('Slack MCP Server running on stdio');
-}
-
-runServer().catch((error) => {
-  console.error('Fatal error in main():', error);
+// Start the server
+startServer(server).catch((error) => {
+  console.error('Fatal error starting server:', error);
   process.exit(1);
 });
