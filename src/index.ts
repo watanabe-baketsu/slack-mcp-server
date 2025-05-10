@@ -30,7 +30,7 @@ import {
   GetUserChannelActivityRequestSchema,
 } from './schemas.js';
 
-// MCPサーバーを作成
+// Create MCP server
 const server = new Server(
   {
     name: 'slack-mcp-server',
@@ -43,7 +43,7 @@ const server = new Server(
   }
 );
 
-// ツール一覧を返すハンドラー
+// Handler for returning available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
@@ -152,7 +152,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
-// ツールを呼び出すハンドラー
+// Handler for calling tools
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     if (!request.params) {
@@ -166,7 +166,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       throw new Error(`Unknown tool: ${toolName}`);
     }
 
-    // 対応するハンドラーを呼び出す
+    // Call the corresponding handler
     return await handler(request.params.arguments);
   } catch (error) {
     console.error('Error handling request:', error);
@@ -176,7 +176,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// サーバー起動
+// Start the server
 startServer(server).catch((error) => {
   console.error('Fatal error starting server:', error);
   process.exit(1);

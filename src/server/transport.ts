@@ -3,8 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 
 /**
- * トランスポートマネージャークラス
- * セッションID毎のトランスポートを管理します
+ * Transport Manager Class
+ * Manages transports for each session ID
  */
 export class TransportManager {
   private transports: { [sessionId: string]: StreamableHTTPServerTransport } =
@@ -16,39 +16,39 @@ export class TransportManager {
   }
 
   /**
-   * 指定されたセッションIDに対応するトランスポートを取得
+   * Get the transport corresponding to the specified session ID
    */
   getTransport(sessionId: string): StreamableHTTPServerTransport | undefined {
     return this.transports[sessionId];
   }
 
   /**
-   * 新しいトランスポートを作成
+   * Create a new transport
    */
   async createTransport(): Promise<StreamableHTTPServerTransport> {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
       onsessioninitialized: (sessionId) => {
-        // セッションIDでトランスポートを保存
+        // Store transport by session ID
         this.transports[sessionId] = transport;
       },
     });
 
-    // 閉じる時のクリーンアップ
+    // Clean up when closing
     transport.onclose = () => {
       if (transport.sessionId) {
         delete this.transports[transport.sessionId];
       }
     };
 
-    // サーバーに接続
+    // Connect to server
     await this.server.connect(transport);
 
     return transport;
   }
 
   /**
-   * 特定のセッションIDに対応するトランスポートを削除
+   * Remove the transport corresponding to a specific session ID
    */
   removeTransport(sessionId: string): void {
     if (this.transports[sessionId]) {

@@ -13,7 +13,7 @@ import {
 } from '../schemas.js';
 
 /**
- * メッセージを投稿するハンドラー
+ * Handler for posting a message
  */
 export async function postMessageHandler(args: unknown) {
   const parsedArgs = PostMessageRequestSchema.parse(args);
@@ -32,7 +32,7 @@ export async function postMessageHandler(args: unknown) {
 }
 
 /**
- * スレッドに返信するハンドラー
+ * Handler for replying to a thread
  */
 export async function replyToThreadHandler(args: unknown) {
   const parsedArgs = ReplyToThreadRequestSchema.parse(args);
@@ -52,7 +52,7 @@ export async function replyToThreadHandler(args: unknown) {
 }
 
 /**
- * リアクションを追加するハンドラー
+ * Handler for adding a reaction
  */
 export async function addReactionHandler(args: unknown) {
   const parsedArgs = AddReactionRequestSchema.parse(args);
@@ -72,7 +72,7 @@ export async function addReactionHandler(args: unknown) {
 }
 
 /**
- * チャンネル履歴を取得するハンドラー
+ * Handler for getting channel history
  */
 export async function getChannelHistoryHandler(args: unknown) {
   const parsedArgs = GetChannelHistoryRequestSchema.parse(args);
@@ -93,7 +93,7 @@ export async function getChannelHistoryHandler(args: unknown) {
 }
 
 /**
- * スレッド返信を取得するハンドラー
+ * Handler for getting thread replies
  */
 export async function getThreadRepliesHandler(args: unknown) {
   const parsedArgs = GetThreadRepliesRequestSchema.parse(args);
@@ -115,7 +115,7 @@ export async function getThreadRepliesHandler(args: unknown) {
 }
 
 /**
- * メッセージを検索するハンドラー
+ * Handler for searching messages
  */
 export async function searchMessagesHandler(args: unknown) {
   const parsedParams = SearchMessagesRequestSchema.parse(args);
@@ -157,7 +157,7 @@ export async function searchMessagesHandler(args: unknown) {
 }
 
 /**
- * メンションを検索するハンドラー
+ * Handler for searching mentions
  */
 export async function searchMentionsHandler(args: unknown) {
   const parsedArgs = SearchMentionsRequestSchema.parse(args);

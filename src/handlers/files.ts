@@ -7,12 +7,12 @@ import {
 } from '../schemas.js';
 
 /**
- * チャンネル内のファイル一覧を取得するハンドラー
+ * Handler for listing files in a channel
  */
 export async function listFilesInChannelHandler(args: unknown) {
   const parsedArgs = ListFilesInChannelRequestSchema.parse(args);
 
-  // チャンネル内のファイルリストを取得
+  // Get file list from channel
   const response = await userClient.files.list({
     channel: parsedArgs.channel_id,
     count: parsedArgs.limit,
@@ -31,12 +31,12 @@ export async function listFilesInChannelHandler(args: unknown) {
 }
 
 /**
- * ファイル情報を取得するハンドラー
+ * Handler for getting file information
  */
 export async function getFileInfoHandler(args: unknown) {
   const parsedArgs = GetFileInfoRequestSchema.parse(args);
 
-  // 特定のファイルの情報を取得
+  // Get specific file information
   const response = await userClient.files.info({
     file: parsedArgs.file_id,
   });
@@ -51,18 +51,18 @@ export async function getFileInfoHandler(args: unknown) {
 }
 
 /**
- * チャンネル内のファイルを要約するハンドラー
+ * Handler for summarizing channel files
  */
 export async function summarizeChannelFilesHandler(args: unknown) {
   const parsedArgs = SummarizeChannelFilesRequestSchema.parse(args);
 
-  // 1. ユーザーが参加している全てのチャンネルを取得
+  // 1. Get all channels the user is a member of
   const channelsResponse = await userClient.users.conversations({
     types: parsedArgs.include_private
       ? 'public_channel,private_channel'
       : 'public_channel',
     exclude_archived: true,
-    limit: 200, // 最大数を取得
+    limit: 200, // Get maximum number
   });
 
   if (!channelsResponse.ok) {
@@ -86,10 +86,10 @@ export async function summarizeChannelFilesHandler(args: unknown) {
 
   const channelSummaries = [];
 
-  // 2. 各チャンネルでファイルを取得して内容をまとめる
+  // 2. Get files from each channel and summarize content
   for (const channel of channelsResponse.channels) {
     try {
-      // チャンネル内のファイルリストを取得
+      // Get file list from channel
       const filesResponse = await userClient.files.list({
         channel: channel.id,
         count: parsedArgs.max_files_per_channel,
@@ -101,7 +101,7 @@ export async function summarizeChannelFilesHandler(args: unknown) {
         !filesResponse.files ||
         filesResponse.files.length === 0
       ) {
-        continue; // このチャンネルはスキップ
+        continue; // Skip this channel
       }
 
       const files = filesResponse.files.map((file) => ({

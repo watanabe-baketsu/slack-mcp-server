@@ -281,7 +281,7 @@ export const SearchMessagesRequestSchema = z.object({
 });
 
 export const SearchMentionsRequestSchema = z.object({
-  user_id: z.string().describe('メンションを検索するユーザーのID'),
+  user_id: z.string().describe('ID of the user to search for mentions'),
   limit: z
     .number()
     .int()
@@ -289,15 +289,15 @@ export const SearchMentionsRequestSchema = z.object({
     .max(100)
     .optional()
     .default(20)
-    .describe('取得するメッセージの最大数（デフォルト20）'),
+    .describe('Maximum number of messages to retrieve (default 20)'),
   after: z
     .string()
     .optional()
-    .describe('この日時以降のメンションを検索（YYYY-MM-DD形式）'),
+    .describe('Search for mentions after this date (YYYY-MM-DD format)'),
   before: z
     .string()
     .optional()
-    .describe('この日時以前のメンションを検索（YYYY-MM-DD形式）'),
+    .describe('Search for mentions before this date (YYYY-MM-DD format)'),
 });
 
 const SearchPaginationSchema = z.object({
@@ -362,7 +362,7 @@ export const GetCurrentUserResponseSchema = BaseResponseSchema.extend({
   url: z.string().optional(),
 });
 
-// キャンバス関連のスキーマをファイル関連のスキーマに変更
+// Canvas related schemas
 export const GetUserChannelsRequestSchema = z.object({
   limit: z.number().optional().default(100),
   cursor: z.string().optional(),
@@ -431,7 +431,7 @@ export const SummarizeChannelFilesRequestSchema = z.object({
   file_types: z.string().optional().default(''),
 });
 
-// Canvasに関するスキーマ
+// Canvas schemas
 export const ListChannelCanvasesRequestSchema = z.object({
   channel_id: z.string(),
   limit: z.number().optional().default(10),
@@ -486,28 +486,28 @@ export const SummarizeUserCanvasesRequestSchema = z.object({
   include_private: z.boolean().optional().default(true),
 });
 
-// ユーザーチャンネルアクティビティに関するスキーマ
+// User channel activity schemas
 export const GetUserChannelActivityRequestSchema = z.object({
   days: z
     .number()
     .optional()
     .default(1)
-    .describe('取得する日数（デフォルト1日）'),
+    .describe('Number of days to retrieve (default 1)'),
   max_channels: z
     .number()
     .optional()
     .default(5)
-    .describe('取得するチャンネルの最大数（デフォルト5）'),
+    .describe('Maximum number of channels to retrieve (default 5)'),
   max_messages_per_channel: z
     .number()
     .optional()
     .default(10)
-    .describe('チャンネルごとに取得するメッセージの最大数（デフォルト10）'),
+    .describe('Maximum number of messages to retrieve per channel (default 10)'),
   include_private: z
     .boolean()
     .optional()
     .default(true)
-    .describe('プライベートチャンネルを含めるかどうか（デフォルトtrue）'),
+    .describe('Whether to include private channels (default true)'),
 });
 
 export const MessageActivitySchema = z.object({

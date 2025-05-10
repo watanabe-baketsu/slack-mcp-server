@@ -14,18 +14,18 @@ export {
   activityHandlers,
 };
 
-// ハンドラーの型定義
+// Handler type definition
 export type ToolHandler = (args: unknown) => Promise<{
   content: { type: string; text: string }[];
 }>;
 
-// ツール名とハンドラーの対応付け
+// Mapping tool names to handlers
 export const handlers: Record<string, ToolHandler> = {
-  // チャンネル関連
+  // Channel related
   slack_list_channels: channelsHandlers.listChannelsHandler,
   slack_get_user_channels: channelsHandlers.getUserChannelsHandler,
 
-  // メッセージ関連
+  // Message related
   slack_post_message: messagesHandlers.postMessageHandler,
   slack_reply_to_thread: messagesHandlers.replyToThreadHandler,
   slack_add_reaction: messagesHandlers.addReactionHandler,
@@ -34,22 +34,22 @@ export const handlers: Record<string, ToolHandler> = {
   slack_search_messages: messagesHandlers.searchMessagesHandler,
   slack_search_mentions: messagesHandlers.searchMentionsHandler,
 
-  // ユーザー関連
+  // User related
   slack_get_users: usersHandlers.getUsersHandler,
   slack_get_user_profile: usersHandlers.getUserProfileHandler,
   slack_get_current_user: usersHandlers.getCurrentUserHandler,
 
-  // ファイル関連
+  // File related
   slack_list_files_in_channel: filesHandlers.listFilesInChannelHandler,
   slack_get_file_info: filesHandlers.getFileInfoHandler,
   slack_summarize_channel_files: filesHandlers.summarizeChannelFilesHandler,
 
-  // キャンバス関連
+  // Canvas related
   slack_list_channel_canvases: canvasesHandlers.listChannelCanvasesHandler,
   slack_get_canvas_content: canvasesHandlers.getCanvasContentHandler,
   slack_summarize_user_canvases: canvasesHandlers.summarizeUserCanvasesHandler,
 
-  // アクティビティ関連
+  // Activity related
   slack_get_user_channel_activity:
     activityHandlers.getUserChannelActivityHandler,
 };
