@@ -3,6 +3,7 @@ import * as messagesHandlers from './messages.js';
 import * as usersHandlers from './users.js';
 import * as filesHandlers from './files.js';
 import * as canvasesHandlers from './canvases.js';
+import * as activityHandlers from './activity.js';
 
 export {
   channelsHandlers,
@@ -10,6 +11,7 @@ export {
   usersHandlers,
   filesHandlers,
   canvasesHandlers,
+  activityHandlers,
 };
 
 // ハンドラーの型定義
@@ -46,4 +48,7 @@ export const handlers: Record<string, ToolHandler> = {
   'slack_list_channel_canvases': canvasesHandlers.listChannelCanvasesHandler,
   'slack_get_canvas_content': canvasesHandlers.getCanvasContentHandler,
   'slack_summarize_user_canvases': canvasesHandlers.summarizeUserCanvasesHandler,
+  
+  // アクティビティ関連
+  'slack_get_user_channel_activity': activityHandlers.getUserChannelActivityHandler,
 }; 

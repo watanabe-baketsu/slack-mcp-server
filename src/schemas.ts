@@ -475,3 +475,31 @@ export const SummarizeUserCanvasesRequestSchema = z.object({
   max_canvases_per_channel: z.number().optional().default(5),
   include_private: z.boolean().optional().default(true),
 });
+
+// ユーザーチャンネルアクティビティに関するスキーマ
+export const GetUserChannelActivityRequestSchema = z.object({
+  days: z.number().optional().default(1).describe('取得する日数（デフォルト1日）'),
+  max_channels: z.number().optional().default(5).describe('取得するチャンネルの最大数（デフォルト5）'),
+  max_messages_per_channel: z.number().optional().default(10).describe('チャンネルごとに取得するメッセージの最大数（デフォルト10）'),
+  include_private: z.boolean().optional().default(true).describe('プライベートチャンネルを含めるかどうか（デフォルトtrue）'),
+});
+
+export const MessageActivitySchema = z.object({
+  channel_id: z.string(),
+  channel_name: z.string(),
+  messages: z.array(z.object({
+    text: z.string(),
+    user: z.string().optional(),
+    ts: z.string(),
+    reply_count: z.number().optional(),
+    reaction_count: z.number().optional(),
+    has_mention: z.boolean().optional(),
+    permalink: z.string().optional(),
+  })),
+});
+
+export const GetUserChannelActivityResponseSchema = z.object({
+  ok: z.boolean(),
+  date: z.string(),
+  channels_summary: z.array(MessageActivitySchema),
+});

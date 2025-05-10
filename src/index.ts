@@ -27,6 +27,7 @@ import {
   ListChannelCanvasesRequestSchema,
   GetCanvasContentRequestSchema,
   SummarizeUserCanvasesRequestSchema,
+  GetUserChannelActivityRequestSchema,
 } from './schemas.js';
 
 // MCPサーバーを作成
@@ -136,6 +137,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: 'slack_summarize_user_canvases',
         description: 'Summarize canvases from all channels the user is a member of',
         inputSchema: zodToJsonSchema(SummarizeUserCanvasesRequestSchema),
+      },
+      {
+        name: 'slack_get_user_channel_activity',
+        description: '参加しているチャンネルの最近のアクティビティや顕著な動きをまとめる',
+        inputSchema: zodToJsonSchema(GetUserChannelActivityRequestSchema),
       },
     ],
   };
