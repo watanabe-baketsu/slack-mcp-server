@@ -1,5 +1,5 @@
 {
-  "name": "@ubie-oss/slack-mcp-server",
+  "name": "@watanabe-baketsu/slack-mcp-server",
   "version": "0.0.4",
   "description": "A Slack MCP server",
   "main": "dist/index.js",
@@ -28,11 +28,11 @@
   "author": "Ubie, Inc.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ubie-oss/slack-mcp-server.git"
+    "url": "https://github.com/watanabe-baketsu/slack-mcp-server.git"
   },
-  "homepage": "https://github.com/ubie-oss/slack-mcp-server",
+  "homepage": "https://github.com/watanabe-baketsu/slack-mcp-server",
   "bugs": {
-    "url": "https://github.com/ubie-oss/slack-mcp-server/issues"
+    "url": "https://github.com/watanabe-baketsu/slack-mcp-server/issues"
   },
   "license": "Apache-2.0",
   "dependencies": {

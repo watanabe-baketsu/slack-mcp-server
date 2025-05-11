@@ -502,7 +502,9 @@ export const GetUserChannelActivityRequestSchema = z.object({
     .number()
     .optional()
     .default(10)
-    .describe('Maximum number of messages to retrieve per channel (default 10)'),
+    .describe(
+      'Maximum number of messages to retrieve per channel (default 10)'
+    ),
   include_private: z
     .boolean()
     .optional()

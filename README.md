@@ -31,7 +31,7 @@ Available tools:
 ### Installation
 
 ```bash
-npm install @ubie-oss/slack-mcp-server
+npm install @watanabe-baketsu/slack-mcp-server
 ```
 
 NOTE: Its now hosted in GitHub Registry so you need your PAT.
@@ -65,7 +65,7 @@ EXMAPLES_SLACK_USER_TOKEN=xoxp-your-user-token
 
 Directly:
 ```bash
-npx @ubie-oss/slack-mcp-server
+npx @watanabe-baketsu/slack-mcp-server
 ```
 
 Or, run the installed module with node:
@@ -81,7 +81,7 @@ node node_modules/.bin/slack-mcp-server
     "command": "npx",
     "args": [
       "-y",
-      "@ubie-oss/slack-mcp-server"
+      "@watanabe-baketsu/slack-mcp-server"
     ],
     "env": {
       "NPM_CONFIG_//npm.pkg.github.com/:_authToken": "<your-github-pat>",
