@@ -1,4 +1,4 @@
-import { userClient } from '../config/slack-client.js';
+import { SlackContext } from '../config/slack-client.js';
 import {
   ListChannelsRequestSchema,
   ListChannelsResponseSchema,
@@ -13,7 +13,7 @@ import {
  */
 export async function listChannelsHandler(args: unknown) {
   const parsedArgs = ListChannelsRequestSchema.parse(args);
-  const response = await userClient.conversations.list({
+  const response = await SlackContext.userClient.conversations.list({
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
     types: 'public_channel,private_channel', // Include private channels
@@ -36,7 +36,7 @@ export async function getUserChannelsHandler(args: unknown) {
   const parsedArgs = GetUserChannelsRequestSchema.parse(args);
 
   // Use userClient to get all channels the user has joined
-  const response = await userClient.users.conversations({
+  const response = await SlackContext.userClient.users.conversations({
     types: 'public_channel,private_channel',
     exclude_archived: true,
     limit: parsedArgs.limit,

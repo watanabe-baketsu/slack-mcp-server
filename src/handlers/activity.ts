@@ -1,4 +1,4 @@
-import { userClient } from '../config/slack-client.js';
+import { SlackContext } from '../config/slack-client.js';
 import {
   GetUserChannelActivityRequestSchema,
   GetUserChannelActivityResponseSchema,
@@ -51,7 +51,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
   const oldest = getTimestampNDaysAgo(days);
 
   // Get list of channels user is participating in
-  const channelsResponse = await userClient.users.conversations({
+  const channelsResponse = await SlackContext.userClient.users.conversations({
     types: includePrivate ? 'public_channel,private_channel' : 'public_channel',
     exclude_archived: true,
     limit: 200, // Get maximum number
@@ -90,7 +90,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
       }
 
       // Get channel history
-      const historyResponse = await userClient.conversations.history({
+      const historyResponse = await SlackContext.userClient.conversations.history({
         channel: channel.id,
         limit: maxMessagesPerChannel,
         oldest: oldest.toString(),
@@ -124,7 +124,7 @@ export async function getUserChannelActivityHandler(args: unknown) {
       // Get permalinks (only for important messages to avoid API rate limits)
       for (let i = 0; i < Math.min(3, processedMessages.length); i++) {
         try {
-          const permalinkResponse = await userClient.chat.getPermalink({
+          const permalinkResponse = await SlackContext.userClient.chat.getPermalink({
             channel: channel.id,
             message_ts: processedMessages[i].ts,
           });
