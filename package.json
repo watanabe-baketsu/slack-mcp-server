@@ -40,6 +40,7 @@
     "@slack/web-api": "^7.9.1",
     "@types/express": "^5.0.1",
     "@types/node": "^20.10.3",
+    "axios": "^1.9.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "typescript": "^5.3.2",

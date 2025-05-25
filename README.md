@@ -129,7 +129,7 @@ A Dockerfile is provided for containerized deployment:
 docker build -t slack-mcp-server .
 
 # Run the container
-docker run -p 3000:3000 -e SLACK_BOT_TOKEN=xoxb-your-bot-token -e SLACK_USER_TOKEN=xoxp-your-user-token slack-mcp-server
+docker run -p 3000:3000 --env-file .env -v $(pwd)/db:/app/db slack-mcp-server
 ```
 
 ### Contributing

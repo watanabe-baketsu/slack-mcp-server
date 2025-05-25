@@ -135,3 +135,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Environment variables
+.env
+node_modules/
+dist/
+db/**/*.json

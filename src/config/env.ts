@@ -3,23 +3,24 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Validate environment variables
-if (!process.env.SLACK_BOT_TOKEN) {
-  console.error(
-    'SLACK_BOT_TOKEN is not set. Please set it in your environment or .env file.'
-  );
+if (!process.env.SLACK_CLIENT_ID) {
+  console.error('SLACK_CLIENT_ID is not set. Please set ');
   process.exit(1);
 }
 
-if (!process.env.SLACK_USER_TOKEN) {
-  console.error(
-    'SLACK_USER_TOKEN is not set. Please set it in your environment or .env file.'
-  );
+if (!process.env.SLACK_CLIENT_SECRET) {
+  console.error('SLACK_CLIENT_SECRET is not set. Please set it in your environment or .env file.');
   process.exit(1);
 }
 
-// Export environment variables
-export const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
-export const SLACK_USER_TOKEN = process.env.SLACK_USER_TOKEN;
+if (!process.env.SLACK_SIGNING_SECRET) {
+  console.error('SLACK_SIGNING_SECRET is not set. Please set it in your environment or .env file.');
+  process.exit(1);
+}
+
+export const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
+export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
+export const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
+export const DOMAIN = process.env.DOMAIN || 'http://localhost:3000';
 export const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 export const MODE = process.env.MODE;

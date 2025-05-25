@@ -4,6 +4,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { PORT, MODE } from '../config/env.js';
 import { TransportManager } from './transport.js';
 import { setupRoutes } from './routes.js';
+import { SlackRequestVerifier } from './verifier.js';
 
 /**
  * Function to start the HTTP server

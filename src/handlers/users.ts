@@ -1,4 +1,4 @@
-import { slackClient, userClient } from '../config/slack-client.js';
+import { SlackContext } from '../config/slack-client.js';
 import {
   GetUsersRequestSchema,
   GetUserProfileRequestSchema,
@@ -12,7 +12,7 @@ import {
  */
 export async function getUsersHandler(args: unknown) {
   const parsedArgs = GetUsersRequestSchema.parse(args);
-  const response = await slackClient.users.list({
+  const response = await SlackContext.botClient.users.list({
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
   });
@@ -32,7 +32,7 @@ export async function getUsersHandler(args: unknown) {
  */
 export async function getUserProfileHandler(args: unknown) {
   const parsedArgs = GetUserProfileRequestSchema.parse(args);
-  const response = await slackClient.users.profile.get({
+  const response = await SlackContext.botClient.users.profile.get({
     user: parsedArgs.user_id,
   });
 
@@ -50,7 +50,7 @@ export async function getUserProfileHandler(args: unknown) {
  * Handler for retrieving current user information
  */
 export async function getCurrentUserHandler() {
-  const response = await userClient.auth.test();
+  const response = await SlackContext.userClient.auth.test();
 
   if (!response.ok) {
     throw new Error(`Failed to get current user: ${response.error}`);

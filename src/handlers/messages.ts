@@ -1,4 +1,4 @@
-import { slackClient, userClient } from '../config/slack-client.js';
+import { SlackContext } from '../config/slack-client.js';
 import {
   PostMessageRequestSchema,
   ReplyToThreadRequestSchema,
@@ -17,7 +17,7 @@ import {
  */
 export async function postMessageHandler(args: unknown) {
   const parsedArgs = PostMessageRequestSchema.parse(args);
-  const response = await userClient.chat.postMessage({
+  const response = await SlackContext.userClient.chat.postMessage({
     channel: parsedArgs.channel_id,
     text: parsedArgs.text,
   });
@@ -36,7 +36,7 @@ export async function postMessageHandler(args: unknown) {
  */
 export async function replyToThreadHandler(args: unknown) {
   const parsedArgs = ReplyToThreadRequestSchema.parse(args);
-  const response = await userClient.chat.postMessage({
+  const response = await SlackContext.userClient.chat.postMessage({
     channel: parsedArgs.channel_id,
     thread_ts: parsedArgs.thread_ts,
     text: parsedArgs.text,
@@ -56,7 +56,7 @@ export async function replyToThreadHandler(args: unknown) {
  */
 export async function addReactionHandler(args: unknown) {
   const parsedArgs = AddReactionRequestSchema.parse(args);
-  const response = await slackClient.reactions.add({
+  const response = await SlackContext.botClient.reactions.add({
     channel: parsedArgs.channel_id,
     timestamp: parsedArgs.timestamp,
     name: parsedArgs.reaction,
@@ -76,7 +76,7 @@ export async function addReactionHandler(args: unknown) {
  */
 export async function getChannelHistoryHandler(args: unknown) {
   const parsedArgs = GetChannelHistoryRequestSchema.parse(args);
-  const response = await userClient.conversations.history({
+  const response = await SlackContext.userClient.conversations.history({
     channel: parsedArgs.channel_id,
     limit: parsedArgs.limit,
     cursor: parsedArgs.cursor,
@@ -97,7 +97,7 @@ export async function getChannelHistoryHandler(args: unknown) {
  */
 export async function getThreadRepliesHandler(args: unknown) {
   const parsedArgs = GetThreadRepliesRequestSchema.parse(args);
-  const response = await slackClient.conversations.replies({
+  const response = await SlackContext.botClient.conversations.replies({
     channel: parsedArgs.channel_id,
     ts: parsedArgs.thread_ts,
     limit: parsedArgs.limit,
@@ -137,7 +137,7 @@ export async function searchMessagesHandler(args: unknown) {
     query += ` from:${parsedParams.from_bot}`;
   }
 
-  const response = await userClient.search.messages({
+  const response = await SlackContext.userClient.search.messages({
     query: query,
     highlight: parsedParams.highlight,
     sort: parsedParams.sort,
@@ -170,7 +170,7 @@ export async function searchMentionsHandler(args: unknown) {
     query += ` before:${parsedArgs.before}`;
   }
 
-  const response = await userClient.search.messages({
+  const response = await SlackContext.userClient.search.messages({
     query: query,
     count: parsedArgs.limit,
     sort: 'timestamp',
