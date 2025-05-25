@@ -1,9 +1,6 @@
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
-/**
- * Slack リクエスト署名検証の設定
- */
 export interface SlackVerifierConfig {
   signingSecret: string;
   timestampTolerance?: number;
